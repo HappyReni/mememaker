@@ -2,10 +2,8 @@ import os
 import telegram
 import datetime
 import praw
-import pandas as pd
 import random
 import undetected_chromedriver as uc
-import uiautomation as auto
 import time
 import logging
 import json
@@ -65,7 +63,6 @@ class MemeMaker:
         self.isFinished = False
     def __del__(self):
         pass
-        # self.driver.close()
 
     def _getVideos(self,
                     download_count = 30,
@@ -79,12 +76,7 @@ class MemeMaker:
             user_agent=self.reddit_para["user_agent"],
         )
 
-        df = pd.DataFrame(columns=["title","url","content"])
-
         titles = []
-        urls = []
-        contents = []
-        selftext = []
 
         # 오늘 날짜로 폴더 생성
         folder_name = "videos\\" + self.date
@@ -119,19 +111,13 @@ class MemeMaker:
                             self.logger.info(f"Downloading . . .")
                         except:
                             self.logger.warning(f"download failed")
-                        titles.append(title)
-                        urls.append(url)
-                        contents.append(selftext)
                     else:
                         self.logger.warning(f"this video is skipped due to duration or width")
                         continue
 
-        df["title"] = titles
-        df["url"] = urls
-        df["content"] = contents
-        df.to_excel(f'logs\\{self.time_withSeconds}.xlsx')
         self.bot.sendMessage(chat_id=self.chat_id, text=f"* video download finished : total {len(titles)} videos")
         self.logger.info(f"video download finished")
+
     def _mergeVideos(self,
                     video_count = 25,
                     video_length = 180,
@@ -139,8 +125,7 @@ class MemeMaker:
                     ):
         self.logger.info("started merging videos")
         self.bot.sendMessage(chat_id=self.chat_id, text=f"== video merge started == \n")
-        # VIDEO_ADDRESS = r"C:\Workplace\python\memevideo" + "\\" + f"videos\\{self.date}"
-        # path = VIDEO_ADDRESS
+
         path = self.video_address
         self.logger.info(f"video path : {path}")
         file_list = os.listdir(path)
@@ -196,7 +181,6 @@ class MemeMaker:
         self.logger.info(combined)
         try:
             self.video_file = f"result_{self.time_withSeconds}.mp4"
-            # self.bot.sendMessage(chat_id=self.chat_id, text=f"== video merge finished == \n * video length : {duration} sec ")
             self.logger.info(f"merged completed : " + f"result_{self.time_withSeconds}.mp4")
         except Exception as e:
             self.logger.warning(e)
@@ -205,9 +189,7 @@ class MemeMaker:
             clip.close()
     def _upload(self):
         VIDEO_FILE = self.video_file
-        # VIDEO_FILE = "result_20230321_202812.mp4"
         VIDEO_ADDRESS = r"C:\Workplace\python\memevideo" + "\\" + self.video_address
-        # VIDEO_ADDRESS = r"C:\Workplace\python\memevideo" + "\\" + f"videos\\20230321"
 
         VIDEO_TITLE = "Today's Cookie Memes : " + self.date
         VIDEO_DESCRIPTION = "Daily cookie for your soul"
@@ -221,7 +203,6 @@ class MemeMaker:
         driver.set_window_position(0,0)
         driver.set_window_size(1920, 1080)
 
-        upload = "upload\\"
         driver.get("https://www.youtube.com/upload")
         driver.implicitly_wait(1.0)
 
@@ -267,17 +248,6 @@ class MemeMaker:
         
         time.sleep(7.0)
 
-        # try:  
-        #     uploader = auto.WindowControl(searchDepth=2, Name='열기')
-        #     if not uploader.Exists(3, 1):
-        #         self.logger.warning("failed to find Open Window")
-
-        #     # uploader.EditControl(Name="주소").SendKeys(VIDEO_ADDRESS)
-        #     uploader.EditControl(Name="파일 이름(N):").SendKeys(VIDEO_ADDRESS+"\\"+VIDEO_FILE)
-        #     uploader.ButtonControl(Name="열기(O)").Click()
-        # except:
-        #     self.logger.warning("failed video address entered")
-
         try:
             title_input = driver.find_element(By.XPATH,"/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-ve/ytcp-video-metadata-editor/div/ytcp-video-metadata-editor-basics/div[1]/ytcp-social-suggestions-textbox/ytcp-form-input-container/div[1]/div[2]/div/ytcp-social-suggestion-input/div")
             title_input.clear()
@@ -316,32 +286,15 @@ class MemeMaker:
         
         time.sleep(1.0)
 
-        try:
-            next_button = driver.find_element(By.XPATH,"/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[2]/div/div[2]/ytcp-button[2]")
-            next_button.click()
-            self.logger.info(f"next button clicked")
-        except:
-            self.logger.warning("failed next button clicked")
-        
-        time.sleep(1.0)
-        
-        try:
-            next_button = driver.find_element(By.XPATH,"/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[2]/div/div[2]/ytcp-button[2]")
-            next_button.click()
-            self.logger.info(f"next button clicked")
-        except:
-            self.logger.warning("failed next button clicked")
-        
-        time.sleep(1.0)
+        for i in range(3):
+            try:
+                next_button = driver.find_element(By.XPATH,"/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[2]/div/div[2]/ytcp-button[2]")
+                next_button.click()
+                self.logger.info(f"next button clicked")
+            except:
+                self.logger.warning("failed next button clicked")
 
-        try:
-            next_button = driver.find_element(By.XPATH,"/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[2]/div/div[2]/ytcp-button[2]")
-            next_button.click()
-            self.logger.info(f"next button clicked")
-        except:
-            self.logger.warning("failed next button clicked")
-        
-        time.sleep(1.0)
+            time.sleep(1.0)
 
         try:
             radio_button = driver.find_element(By.XPATH,"/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-uploads-review/div[2]/div[1]/ytcp-video-visibility-select/div[2]/tp-yt-paper-radio-group/tp-yt-paper-radio-button[3]/div[1]/div[1]")
@@ -365,12 +318,14 @@ class MemeMaker:
             close_button.click()
         except:
             self.logger.warning("failed close button clicked")
+
         try:
             self.bot.sendMessage(chat_id=self.chat_id, text=f"===== Video upload finished ===== \n * video url : {url}")
         except:
             self.logger.warning("failed to send telegram message")
 
         print("upload finished.")
+        driver.quit()
         self.isFinished = True
 
     def begin(self):
