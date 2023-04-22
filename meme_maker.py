@@ -7,11 +7,24 @@ import undetected_chromedriver as uc
 import time
 import logging
 import json
+import re
 
 from RedDownloader import RedDownloader
 from moviepy.editor import *
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+
+
+def remove_invalid_chars(input_str):
+    """
+    Removes invalid characters for Windows folder name from input_str.
+    """
+    if bool(re.search(invalid_chars, input_str)):
+        invalid_chars = r'[<>:"/\\|?*]'
+        output_str = re.sub(invalid_chars, '', input_str)
+        return output_str
+    
+    return input_str
 
 class MemeMaker:
     def __init__(self) -> None:
@@ -47,7 +60,11 @@ class MemeMaker:
         self.video_file = ""
         self.video_address = ""
 
-        # logger
+        #init log
+        self._init_log()
+
+        self.isFinished = False
+    def _init_log(self):
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -59,8 +76,6 @@ class MemeMaker:
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
         self.logger.info("program initiated")
-
-        self.isFinished = False
     def __del__(self):
         pass
 
@@ -101,6 +116,7 @@ class MemeMaker:
                     width = submission.media["reddit_video"]["width"]
 
                     if duration < video_duration and width > 600:
+                        title = remove_invalid_chars(title)
                         self.logger.info(f"title : {title}")
                         self.logger.info(f"url : {url}")
                         self.logger.info(f"duration : {duration}")

@@ -137,3 +137,7 @@ secrets.json
 upload.py
 mememaker.bat
 chromedriver.exe
+
+#media
+*.mp3
+*.mp4
