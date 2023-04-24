@@ -19,8 +19,8 @@ def remove_invalid_chars(input_str):
     """
     Removes invalid characters for Windows folder name from input_str.
     """
+    invalid_chars = r'[<>:"/\\|?*]'
     if bool(re.search(invalid_chars, input_str)):
-        invalid_chars = r'[<>:"/\\|?*]'
         output_str = re.sub(invalid_chars, '', input_str)
         return output_str
     
@@ -60,11 +60,26 @@ class MemeMaker:
         self.video_file = ""
         self.video_address = ""
 
+        #making videos folder
+        self.abs_path = os.path.abspath(__file__)
+        dir_path = os.path.dirname(self.abs_path)
+        video_dir_path = os.path.join(dir_path, "videos")
+        if not os.path.exists(video_dir_path):
+            os.makedirs(video_dir_path)
+
         #init log
         self._init_log()
 
         self.isFinished = False
     def _init_log(self):
+        # 현재 파일이 있는 디렉토리 경로
+        dir_path = os.path.dirname(self.abs_path)
+        # log 폴더 경로
+        log_dir_path = os.path.join(dir_path, "logs")
+        # log 폴더가 없으면 생성
+        if not os.path.exists(log_dir_path):
+            os.makedirs(log_dir_path)
+
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -122,6 +137,7 @@ class MemeMaker:
                         self.logger.info(f"duration : {duration}")
                         self.logger.info(f"width : {width}")
 
+                        titles.append(title)
                         try:
                             file = RedDownloader.Download(url = url , output=f"{title}", destination=f"{folder_name}\\",quality = 1080)
                             self.logger.info(f"Downloading . . .")
