@@ -93,7 +93,6 @@ class MemeMaker:
         self.logger.info("program initiated")
     def __del__(self):
         pass
-
     def _getVideos(self,
                     download_count = 30,
                     video_duration = 25):
