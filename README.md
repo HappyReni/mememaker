@@ -52,4 +52,4 @@ If there are three subreddits listed in the `secrets.json` file (e.g., 'funny', 
 - You might need to adjust the `time.sleep()` values in the script based on your internet speed and system performance to prevent errors due to slow page loading.
 a fully automated video creating and uploading python program.
 
-https://www.youtube.com/@cookiememes
+check out a channel made with this program : https://www.youtube.com/@cookiememes
